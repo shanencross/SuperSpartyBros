@@ -6,6 +6,7 @@
 [Bb]uild/
 [Bb]uilds/
 [Ww]ebGL/
+[Dd]istribution/
 /[Ll]ibrary/
 sysinfo.txt
 *.stackdump
