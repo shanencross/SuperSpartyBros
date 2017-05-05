@@ -148,7 +148,7 @@ public class CharacterController2D : MonoBehaviour {
 			if 	(_isGrounded) {
 				Jump ();
 			}
-			// double jump if in a double jump-able state,
+			// double jump if in mid-air and if double jump hasn't been used up yet,
 			// but only if double jump ability is in item inventory,
 			// or if no item inventory exists
 			else if (_canDoubleJump && (!ItemInventory.iv || (ItemInventory.iv && ItemInventory.iv.doubleJump))) {

@@ -8,6 +8,7 @@ public class ItemGet : MonoBehaviour {
 	public GameObject explosion;
 	public AudioClip collectionSound;
 	public bool itemAdded = false; // flag for if item has ben added
+	public bool pauseGame = true; // pause the game when item is collected
 
 	private AudioSource _audio;
 
@@ -34,7 +35,7 @@ public class ItemGet : MonoBehaviour {
 	void AddItemToList() {
 		if (ItemInventory.iv) {
 			Debug.Log("Adding item to play ItemInventory");
-			ItemInventory.iv.AddItem(itemName);
+			ItemInventory.iv.AddItem(itemName, pauseGame);
 		} 
 
 		else {

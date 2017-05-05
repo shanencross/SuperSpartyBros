@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class ItemInventory : MonoBehaviour {
 	public static ItemInventory iv;
@@ -8,6 +9,8 @@ public class ItemInventory : MonoBehaviour {
 	public bool dash = false;
 	public bool lavaBoots = false;
 	public GameObject ItemMessage;
+	public bool itemMessageDisplayed = false;
+	public bool gamePaused = false; // if the game is paused for item collection
 
 
 	public void Awake() {
@@ -18,23 +21,50 @@ public class ItemInventory : MonoBehaviour {
 			Debug.LogError("Need to set Item Message on Game Manager's Item Inventory");
 	}
 
-	public void ActivateItemMessage(string itemName) {
-		if (ItemMessage) {
-			ItemMessage.GetComponent<TextDisplay>().SetText(itemName);
-			ItemMessage.SetActive(true);
+	public void Update() {
+		if (itemMessageDisplayed && CrossPlatformInputManager.GetButtonDown("Confirm")) {
+			DeactivateItemMessage();
+
+			if (gamePaused)
+				UnPause();
 		}
 	}
 
-	public void AddItem(string itemName) {
+	void UnPause() {
+		gamePaused = false;
+		Time.timeScale = 1f;
+	}
+
+	public void ActivateItemMessage(string itemName, bool pauseGame=false) {
+		if (ItemMessage) {
+			ItemMessage.GetComponent<TextDisplay>().SetText(itemName);
+			ItemMessage.SetActive(true);
+			itemMessageDisplayed = true;
+
+			if (pauseGame) {
+				gamePaused = true;
+				Time.timeScale = 0f;
+			}
+		}
+	}
+
+	public void DeactivateItemMessage() {
+		if (ItemMessage) {
+			itemMessageDisplayed = false;
+			ItemMessage.SetActive(false);
+		}
+	}
+
+	public void AddItem(string itemName, bool pauseGame=false) {
 		ChangeItem(itemName, true);
-		ActivateItemMessage(itemName);
+		ActivateItemMessage(itemName, pauseGame);
 	}
 
 	public void RemoveItem(string itemName) {
 		ChangeItem(itemName, false);
 	}
 
-	private void ChangeItem(string itemName, bool changeValue) {
+	void ChangeItem(string itemName, bool changeValue) {
 		// changeValue == true means adding item
 		// changeValue == false means removing item
 		if (changeValue == true) {
