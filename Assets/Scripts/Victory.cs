@@ -2,7 +2,6 @@
 using System.Collections;
 
 public class Victory : MonoBehaviour {
-
 	public bool taken = false;
 	public GameObject explosion;
 	// if the player touches the victory object, it has not already been taken, and the player can move (not dead or victory)

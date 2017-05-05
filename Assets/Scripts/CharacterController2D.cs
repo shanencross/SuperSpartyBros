@@ -21,6 +21,8 @@ public class CharacterController2D : MonoBehaviour {
 	// Transform just below feet for checking if player is grounded
 	public Transform groundCheck;
 
+	// Flags for abilities activated by items
+
 	// player can move?
 	// we want this public so other scripts can access it but we don't want to show in editor as it might confuse designer
 	[HideInInspector]
@@ -42,6 +44,7 @@ public class CharacterController2D : MonoBehaviour {
 	Animator _animator;
 	AudioSource _audio;
 	SpriteRenderer _spriteRenderer;
+	CircleCollider2D _circleCollider;
 
 	// hold player motion in this timestep
 	float _vx;
@@ -59,7 +62,7 @@ public class CharacterController2D : MonoBehaviour {
 	// number of layer that Platforms are on (setup in Awake)
 	int _platformLayer;
 	
-	void Awake () {
+	void Awake() {
 		// get a reference to the components we are going to be changing and store a reference for efficiency purposes
 		_transform = GetComponent<Transform> ();
 		
@@ -83,8 +86,13 @@ public class CharacterController2D : MonoBehaviour {
 			Debug.LogError ("SpriterRenderer component missing from this gameobject");
 
 		if (bounceSFX == null) {
-			Debug.LogWarning ("BounceSFX not set. Setting to JumpSFX by default.");
+			Debug.LogWarning("BounceSFX not set. Setting to JumpSFX by default.");
 			bounceSFX = jumpSFX;
+		}
+
+		_circleCollider = GetComponent<CircleCollider2D> ();
+		if (_circleCollider == null) {
+			Debug.LogError("CircleCollider2D component missing from this game object");
 		}
 
 		// determine the player's specified layer
@@ -92,6 +100,8 @@ public class CharacterController2D : MonoBehaviour {
 
 		// determine the platform's specified layer
 		_platformLayer = LayerMask.NameToLayer("Platform");
+
+		// if (GameManager.gm.GetComponent<ItemList>().items);
 	}
 
 	// this is where most of the player controller magic happens each game event loop
@@ -117,10 +127,15 @@ public class CharacterController2D : MonoBehaviour {
 		// get the current vertical velocity from the rigidbody component
 		_vy = _rigidbody.velocity.y;
 
-		// Check to see if character is grounded by raycasting from the middle of the player
-		// down to the groundCheck position and see if collected with gameobjects on the
+
+		// get coordinates for top of circle collider
+		Vector3 topOfCircleCollider_local = new Vector3(_circleCollider.offset.x, _circleCollider.offset.y + _circleCollider.radius, 0);
+		Vector3 topOfCircleCollider = _transform.position + topOfCircleCollider_local;
+
+		// Check to see if character is grounded by raycasting from the top of the circle collider
+		// down to the groundCheck position and see if connected with gameobjects on the
 		// whatIsGround layer
-		_isGrounded = Physics2D.Linecast(_transform.position, groundCheck.position, whatIsGround);  
+		_isGrounded = Physics2D.Linecast(topOfCircleCollider, groundCheck.position, whatIsGround);  
 
 		// Set the grounded animation states
 		_animator.SetBool("Grounded", _isGrounded);
@@ -133,8 +148,11 @@ public class CharacterController2D : MonoBehaviour {
 			if 	(_isGrounded) {
 				Jump ();
 			}
-			else if (_canDoubleJump) {
-				Jump ();
+			// double jump if in a double jump-able state,
+			// but only if double jump ability is in item inventory,
+			// or if no item inventory exists
+			else if (_canDoubleJump && (!ItemInventory.iv || (ItemInventory.iv && ItemInventory.iv.doubleJump))) {
+				Jump();
 				_canDoubleJump = false;
 			}
 		}
@@ -183,7 +201,7 @@ public class CharacterController2D : MonoBehaviour {
 		// reset current vertical motion to 0 prior to jump
 		_vy = 0f;
 		// add a force in the up direction
-		_rigidbody.AddForce (new Vector2 (0, force));
+		_rigidbody.AddForce(new Vector2 (0, force));
 		// play the jump sound
 		PlaySound(SFX);
 	}
@@ -214,13 +232,15 @@ public class CharacterController2D : MonoBehaviour {
 	// do what needs to be done to freeze the player
  	void FreezeMotion() {
 		playerCanMove = false;
-		_rigidbody.isKinematic = true;
+		_rigidbody.bodyType = RigidbodyType2D.Static;
+		//_rigidbody.isKinematic = true;
 	}
 
 	// do what needs to be done to unfreeze the player
 	void UnFreezeMotion() {
 		playerCanMove = true;
-		_rigidbody.isKinematic = false;
+		_rigidbody.bodyType = RigidbodyType2D.Dynamic;
+		//_rigidbody.isKinematic = false;
 	}
 
 	// play sound through the audiosource on the gameobject
@@ -230,7 +250,7 @@ public class CharacterController2D : MonoBehaviour {
 	}
 
 	// public function to apply damage to the player
-	public void ApplyDamage (int damage) {
+	public void ApplyDamage(int damage) {
 		if (playerCanMove) {
 			playerHealth -= damage;
 
@@ -242,7 +262,7 @@ public class CharacterController2D : MonoBehaviour {
 	}
 
 	// public function to kill the player when they have a fall death
-	public void FallDeath () {
+	public void FallDeath() {
 		if (playerCanMove) {
 			playerHealth = 0;
 			PlaySound(fallSFX);
