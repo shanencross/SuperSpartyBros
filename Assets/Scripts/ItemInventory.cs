@@ -11,6 +11,7 @@ public class ItemInventory : MonoBehaviour {
 	public GameObject ItemMessage;
 	public bool itemMessageDisplayed = false;
 	public bool gamePaused = false; // if the game is paused for item collection
+	public string advanceMessageButton = "Start";
 
 
 	public void Awake() {
@@ -22,7 +23,7 @@ public class ItemInventory : MonoBehaviour {
 	}
 
 	public void Update() {
-		if (itemMessageDisplayed && CrossPlatformInputManager.GetButtonDown("Confirm")) {
+		if (itemMessageDisplayed && CrossPlatformInputManager.GetButtonDown(advanceMessageButton)) {
 			DeactivateItemMessage();
 
 			if (gamePaused)

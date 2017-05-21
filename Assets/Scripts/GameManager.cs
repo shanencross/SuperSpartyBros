@@ -44,10 +44,10 @@ public class GameManager : MonoBehaviour {
 	void Update() {
 		// if ESC pressed then pause the game
 		if (CrossPlatformInputManager.GetButtonDown("Pause")) {
-			if (Time.timeScale > 0f) {
+			if (Time.timeScale > 0f && !UIGamePaused.activeSelf) {
 				UIGamePaused.SetActive(true); // this brings up the pause UI
 				Time.timeScale = 0f; // this pauses the game action
-			} else {
+			} else if (UIGamePaused.activeSelf) {
 				Time.timeScale = 1f; // this unpauses the game action (ie. back to normal)
 				UIGamePaused.SetActive(false); // remove the pause UI
 			}
