@@ -102,6 +102,7 @@ public class Enemy : MonoBehaviour {
 	
 	// Move the enemy through its rigidbody based on its waypoints
 	void EnemyMovement() {
+		Debug.Log("myWayPoints.Length: " + myWaypoints.Length);
 		// if there isn't anything in My_Waypoints
 		if ((myWaypoints.Length != 0) && (_moving)) {
 			
