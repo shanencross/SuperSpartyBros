@@ -99,10 +99,9 @@ public class Enemy : MonoBehaviour {
 			}
 		}
 	}
-	
+
 	// Move the enemy through its rigidbody based on its waypoints
 	void EnemyMovement() {
-		Debug.Log("myWayPoints.Length: " + myWaypoints.Length);
 		// if there isn't anything in My_Waypoints
 		if ((myWaypoints.Length != 0) && (_moving)) {
 			
@@ -157,14 +156,14 @@ public class Enemy : MonoBehaviour {
 	}
 	
 	// Attack player
-	void OnTriggerEnter2D(Collider2D collision)
+	void OnTriggerEnter2D(Collider2D collider)
 	{
-		if ((collision.tag == "Player") && !isStunned)
+		if (collider.gameObject.layer == LayerMask.NameToLayer("Player") && !isStunned)
 		{
-			CharacterController2D player = collision.gameObject.GetComponent<CharacterController2D>();
+			CharacterController2D player = collider.transform.parent.GetComponent<CharacterController2D>();
 			if (player.playerCanMove) {
 				// Make sure the enemy is facing the player on attack
-				Flip(collision.transform.position.x-_transform.position.x);
+				Flip(collider.transform.position.x-_transform.position.x);
 				
 				// attack sound
 				playSound(attackSFX);
@@ -183,11 +182,11 @@ public class Enemy : MonoBehaviour {
 	
 	// if the Enemy collides with a MovingPlatform, then make it a child of that platform
 	// so it will go for a ride on the MovingPlatform
-	void OnCollisionEnter2D(Collision2D other)
+	void OnCollisionEnter2D(Collision2D collision)
 	{
-		if (other.gameObject.tag=="MovingPlatform")
+		if (collision.gameObject.tag=="MovingPlatform")
 		{
-			this.transform.parent = other.transform;
+			this.transform.parent = collision.transform;
 		}
 	}
 	

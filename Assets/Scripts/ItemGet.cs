@@ -21,8 +21,8 @@ public class ItemGet : MonoBehaviour {
 	}
 
 
-	void OnTriggerEnter2D(Collider2D other) {
-		if (itemAdded == false && other.CompareTag("Player")) {
+	void OnTriggerEnter2D(Collider2D collider) {
+		if (itemAdded == false && collider.gameObject.layer == LayerMask.NameToLayer("Player")) {
 			Debug.Log("Player colliding with item");
 			//PlaySound(collectionSound);
 			AddItemToList();

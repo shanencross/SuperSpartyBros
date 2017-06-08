@@ -21,6 +21,12 @@ public class CharacterController2D : MonoBehaviour {
 	// Transform just below feet for checking if player is grounded
 	public Transform groundCheck;
 
+	// Circle collider for physics collision with ground
+	public GameObject groundColliderObject;
+
+	// Box collider for physics and trigger collisions with environment
+	public GameObject environmentColliderObject;
+
 	// Flags for abilities activated by items
 
 	// player can move?
@@ -44,7 +50,8 @@ public class CharacterController2D : MonoBehaviour {
 	Animator _animator;
 	AudioSource _audio;
 	SpriteRenderer _spriteRenderer;
-	CircleCollider2D _circleCollider;
+	CircleCollider2D _groundCollider;
+	BoxCollider2D _environmentCollider;
 
 	// hold player motion in this timestep
 	float _vx;
@@ -89,10 +96,31 @@ public class CharacterController2D : MonoBehaviour {
 			Debug.LogWarning("BounceSFX not set. Setting to JumpSFX by default.");
 			bounceSFX = jumpSFX;
 		}
+			
+		if (groundColliderObject == null) {
+			groundColliderObject = _transform.Find("GroundCollider").gameObject;
 
-		_circleCollider = GetComponent<CircleCollider2D> ();
-		if (_circleCollider == null) {
-			Debug.LogError("CircleCollider2D component missing from this game object");
+			if (groundColliderObject == null) {
+				Debug.LogError("GroundCollider child object not attached to player");
+			}
+		}
+
+		_groundCollider = groundColliderObject.GetComponent<CircleCollider2D>();
+		if (_groundCollider == null) {
+			Debug.LogError("CircleCollider2D component missing from GroundCollider child object");
+		}
+
+		if (environmentColliderObject == null) {
+			environmentColliderObject = _transform.Find("EnvironmentCollider").gameObject;
+
+			if (environmentColliderObject == null) {
+				Debug.LogError("EnvironmentCollider child object not attached to player");
+			}
+		}
+
+		_environmentCollider = environmentColliderObject.GetComponent<BoxCollider2D>();
+		if (_environmentCollider == null) {
+			Debug.LogError("BoxCollider2D component missing from EnvironmentCollider child object");
 		}
 
 		// determine the player's specified layer
@@ -129,20 +157,23 @@ public class CharacterController2D : MonoBehaviour {
 
 
 		// get coordinates for top of circle collider
-		Vector3 topOfCircleCollider_local = new Vector3(_circleCollider.offset.x, _circleCollider.offset.y + _circleCollider.radius, 0);
-		Vector3 topOfCircleCollider = _transform.position + topOfCircleCollider_local;
+		Vector3 topOfGroundCollider_local = new Vector3(_groundCollider.offset.x, _groundCollider.offset.y + _groundCollider.radius, 0);
+		Vector3 topOfGroundCollider = _transform.position + topOfGroundCollider_local;
 
 		// Check to see if character is grounded by raycasting from the top of the circle collider
 		// down to the groundCheck position and see if connected with gameobjects on the
 		// whatIsGround layer
-		_isGrounded = Physics2D.Linecast(topOfCircleCollider, groundCheck.position, whatIsGround);  
+		_isGrounded = Physics2D.Linecast(topOfGroundCollider, groundCheck.position, whatIsGround);  
 
 		// Set the grounded animation states
 		_animator.SetBool("Grounded", _isGrounded);
 
-		if (_isGrounded)
+		if (_isGrounded) {
+			// eliminate character bouncing up and down while walking
+			// due to janky physics
+			roundYPositionToTenths();
 			_canDoubleJump = true;
-
+		}
 		if(CrossPlatformInputManager.GetButtonDown("Jump")) // If grounded AND jump button pressed, then allow the player to jump
 		{
 			if 	(_isGrounded) {
@@ -212,19 +243,15 @@ public class CharacterController2D : MonoBehaviour {
 
 	// if the player collides with a MovingPlatform, then make it a child of that platform
 	// so it will go for a ride on the MovingPlatform
-	void OnCollisionEnter2D(Collision2D other)
-	{
-		if (other.gameObject.tag=="MovingPlatform")
-		{
+	void OnCollisionEnter2D(Collision2D other) {
+		if (other.gameObject.tag=="MovingPlatform") {
 			this.transform.parent = other.transform;
 		}
 	}
 
 	// if the player exits a collision with a moving platform, then unchild it
-	void OnCollisionExit2D(Collision2D other)
-	{
-		if (other.gameObject.tag=="MovingPlatform")
-		{
+	void OnCollisionExit2D(Collision2D other) {
+		if (other.gameObject.tag=="MovingPlatform") {
 			this.transform.parent = null;
 		}
 	}
@@ -323,5 +350,10 @@ public class CharacterController2D : MonoBehaviour {
 		_transform.parent = null;
 		_transform.position = spawnloc;
 		_animator.SetTrigger("Respawn");
+	}
+
+	public void roundYPositionToTenths() {
+		float yPositionRoundedToTenths = Mathf.Round(_transform.position.y * 10) / 10;
+		_transform.position = new Vector3(_transform.position.x, yPositionRoundedToTenths, transform.position.z);
 	}
 }
