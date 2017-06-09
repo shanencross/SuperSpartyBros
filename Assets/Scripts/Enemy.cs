@@ -160,7 +160,7 @@ public class Enemy : MonoBehaviour {
 	{
 		if (collider.gameObject.layer == LayerMask.NameToLayer("Player") && !isStunned)
 		{
-			CharacterController2D player = collider.transform.parent.GetComponent<CharacterController2D>();
+			CharacterController2D player = collider.gameObject.GetComponentInParent<CharacterController2D>();
 			if (player.playerCanMove) {
 				// Make sure the enemy is facing the player on attack
 				Flip(collider.transform.position.x-_transform.position.x);
@@ -177,25 +177,6 @@ public class Enemy : MonoBehaviour {
 				// stop to enjoy killing the player
 				_moveTime = Time.time + stunnedTime;
 			}
-		}
-	}
-	
-	// if the Enemy collides with a MovingPlatform, then make it a child of that platform
-	// so it will go for a ride on the MovingPlatform
-	void OnCollisionEnter2D(Collision2D collision)
-	{
-		if (collision.gameObject.tag=="MovingPlatform")
-		{
-			this.transform.parent = collision.transform;
-		}
-	}
-	
-	// if the enemy exits a collision with a moving platform, then unchild it
-	void OnCollisionExit2D(Collision2D other)
-	{
-		if (other.gameObject.tag=="MovingPlatform")
-		{
-			this.transform.parent = null;
 		}
 	}
 	
