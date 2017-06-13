@@ -27,7 +27,10 @@ public class CharacterController2D : MonoBehaviour {
 	// Box collider for physics and trigger collisions with environment
 	public GameObject environmentColliderObject;
 
-	// Flags for abilities activated by items
+	public GameObject groundCollider2object;
+
+	// round y position to nearest 10th unit when _isGrounded flag is true
+	public bool roundYpositionWhenGrounded = false;
 
 	// player can move?
 	// we want this public so other scripts can access it but we don't want to show in editor as it might confuse designer
@@ -52,6 +55,7 @@ public class CharacterController2D : MonoBehaviour {
 	SpriteRenderer _spriteRenderer;
 	CircleCollider2D _groundCollider;
 	BoxCollider2D _environmentCollider;
+	BoxCollider2D _groundCollider2;
 
 	// hold player motion in this timestep
 	float _vx;
@@ -123,6 +127,19 @@ public class CharacterController2D : MonoBehaviour {
 			Debug.LogError("BoxCollider2D component missing from EnvironmentCollider child object");
 		}
 
+		if (groundCollider2object == null) {
+			groundCollider2object = _transform.Find("GroundCollider2").gameObject;
+
+			if (groundCollider2object == null) {
+				Debug.LogError("GroundCollider2 child object not attached to player");
+			}
+		}
+
+		_groundCollider2 = groundCollider2object.GetComponent<BoxCollider2D>();
+		if (_groundCollider2 == null) {
+			Debug.LogError("CircleCollider2D component missing from GroundCollider2 child object");
+		}
+
 		// determine the player's specified layer
 		_playerLayer = this.gameObject.layer;
 
@@ -158,9 +175,10 @@ public class CharacterController2D : MonoBehaviour {
 
 		// get coordinates for top of circle collider
 		Vector3 topOfGroundCollider_local = new Vector3(_groundCollider.offset.x, _groundCollider.offset.y + _groundCollider.radius, 0);
+		//Vector3 topOfGroundCollider_local = new Vector3(0f, -0.135f + 0.067f, 0f);
 		Vector3 topOfGroundCollider = _transform.position + topOfGroundCollider_local;
 
-		// Check to see if character is grounded by raycasting from the top of the circle collider
+		// Check to see if character is grounded by linecasting from the top of the circle collider
 		// down to the groundCheck position and see if connected with gameobjects on the
 		// whatIsGround layer
 		_isGrounded = Physics2D.Linecast(topOfGroundCollider, groundCheck.position, whatIsGround);  
@@ -169,11 +187,21 @@ public class CharacterController2D : MonoBehaviour {
 		_animator.SetBool("Grounded", _isGrounded);
 
 		if (_isGrounded) {
-			// eliminate character bouncing up and down while walking
-			// due to janky physics
-			roundYPositionToTenths();
+			if (roundYpositionWhenGrounded) {
+				// eliminate character bouncing up and down while walking
+				// due to janky physics
+				roundYPosition();
+			}
+				
+			//_groundCollider2.enabled = true;
+			_environmentCollider.isTrigger = false;
 			_canDoubleJump = true;
+		} 
+		else {
+			//_groundCollider2.enabled = false;
+			_environmentCollider.isTrigger = true;
 		}
+
 		if(CrossPlatformInputManager.GetButtonDown("Jump")) // If grounded AND jump button pressed, then allow the player to jump
 		{
 			if 	(_isGrounded) {
@@ -352,8 +380,13 @@ public class CharacterController2D : MonoBehaviour {
 		_animator.SetTrigger("Respawn");
 	}
 
-	public void roundYPositionToTenths() {
-		float yPositionRoundedToTenths = Mathf.Round(_transform.position.y * 10) / 10;
-		_transform.position = new Vector3(_transform.position.x, yPositionRoundedToTenths, transform.position.z);
+	public void roundYPosition() {
+		// round to nearest 0.1 multiple
+		float yPositionRounded = Mathf.Round(_transform.position.y * 10) / 10;
+
+		//round to nearest 0.25 multiple
+		//float yPositionRounded = Mathf.Round(_transform.position.y * 4) / 4;
+
+		_transform.position = new Vector3(_transform.position.x, yPositionRounded, transform.position.z);
 	}
 }
