@@ -194,12 +194,12 @@ public class CharacterController2D : MonoBehaviour {
 			}
 				
 			//_groundCollider2.enabled = true;
-			_environmentCollider.isTrigger = false;
+			//_environmentCollider.isTrigger = false;
 			_canDoubleJump = true;
 		} 
 		else {
 			//_groundCollider2.enabled = false;
-			_environmentCollider.isTrigger = true;
+			//_environmentCollider.isTrigger = true;
 		}
 
 		if(CrossPlatformInputManager.GetButtonDown("Jump")) // If grounded AND jump button pressed, then allow the player to jump

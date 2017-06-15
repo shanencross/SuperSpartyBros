@@ -11,7 +11,6 @@ public class Coin : MonoBehaviour {
 	// then take the coin
 	void OnTriggerEnter2D (Collider2D collider)
 	{
-		Debug.Log("Coin, collider layer: " + LayerMask.LayerToName(collider.gameObject.layer));
 		if (collider.gameObject.layer == LayerMask.NameToLayer("Player") && (!taken)) {
 			CharacterController2D characterController = collider.gameObject.GetComponentInParent<CharacterController2D>();
 			if (characterController.playerCanMove) {
