@@ -65,7 +65,7 @@ public class ItemInventory : MonoBehaviour {
 		ChangeItem(itemName, false);
 	}
 
-	void ChangeItem(string itemName, bool changeValue) {
+	public void ChangeItem(string itemName, bool changeValue) {
 		// changeValue == true means adding item
 		// changeValue == false means removing item
 		if (changeValue == true) {
