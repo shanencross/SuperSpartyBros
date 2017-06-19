@@ -15,6 +15,4 @@ public class DeletePlayerPrefs : ScriptableObject {
 			PlayerPrefs.DeleteAll();
 		}
 	}
-
-
 }

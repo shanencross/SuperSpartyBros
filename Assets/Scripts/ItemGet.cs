@@ -43,10 +43,10 @@ public class ItemGet : MonoBehaviour {
 		}
 	}
 
-	void PlaySound(AudioClip sound) {
+	void PlaySound(AudioClip sound, float volume = 0.8f) {
 		if (_audio != null) {
 			Debug.Log("playing audio clip");
-			_audio.PlayOneShot(sound);
+			_audio.PlayOneShot(sound, volume);
 		}
 	}
 

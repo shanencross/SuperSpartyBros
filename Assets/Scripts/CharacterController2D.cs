@@ -27,8 +27,6 @@ public class CharacterController2D : MonoBehaviour {
 	// Box collider for physics and trigger collisions with environment
 	public GameObject environmentColliderObject;
 
-	public GameObject groundCollider2object;
-
 	// round y position to nearest 10th unit when _isGrounded flag is true
 	public bool roundYpositionWhenGrounded = false;
 
@@ -55,7 +53,6 @@ public class CharacterController2D : MonoBehaviour {
 	SpriteRenderer _spriteRenderer;
 	CircleCollider2D _groundCollider;
 	BoxCollider2D _environmentCollider;
-	BoxCollider2D _groundCollider2;
 
 	// hold player motion in this timestep
 	float _vx;
@@ -126,19 +123,7 @@ public class CharacterController2D : MonoBehaviour {
 		if (_environmentCollider == null) {
 			Debug.LogError("BoxCollider2D component missing from EnvironmentCollider child object");
 		}
-
-		if (groundCollider2object == null) {
-			groundCollider2object = _transform.Find("GroundCollider2").gameObject;
-
-			if (groundCollider2object == null) {
-				Debug.LogError("GroundCollider2 child object not attached to player");
-			}
-		}
-
-		_groundCollider2 = groundCollider2object.GetComponent<BoxCollider2D>();
-		if (_groundCollider2 == null) {
-			Debug.LogError("CircleCollider2D component missing from GroundCollider2 child object");
-		}
+			
 
 		// determine the player's specified layer
 		_playerLayer = this.gameObject.layer;
@@ -193,14 +178,8 @@ public class CharacterController2D : MonoBehaviour {
 				roundYPosition();
 			}
 				
-			//_groundCollider2.enabled = true;
-			//_environmentCollider.isTrigger = false;
 			_canDoubleJump = true;
 		} 
-		else {
-			//_groundCollider2.enabled = false;
-			//_environmentCollider.isTrigger = true;
-		}
 
 		if(CrossPlatformInputManager.GetButtonDown("Jump")) // If grounded AND jump button pressed, then allow the player to jump
 		{
@@ -299,9 +278,8 @@ public class CharacterController2D : MonoBehaviour {
 	}
 
 	// play sound through the audiosource on the gameobject
-	void PlaySound(AudioClip clip)
-	{
-		_audio.PlayOneShot(clip);
+	void PlaySound(AudioClip clip, float volume = 0.8f) {
+		_audio.PlayOneShot(clip, volume);
 	}
 
 	// public function to apply damage to the player

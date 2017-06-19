@@ -60,8 +60,14 @@ public static class PlayerPrefManager {
 	}
 
 	// store a key for the name of the current level to indicate it is unlocked
-	public static void UnlockLevel() {	
-		PlayerPrefs.SetInt(SceneManager.GetActiveScene().name,1);
+	public static void UnlockLevel() {
+		string name = SceneManager.GetActiveScene().name;	
+		UnlockLevel(name);
+	}
+
+	// stor a key for a given level name to indicate it is unlocked
+	public static void UnlockLevel(string name) {
+		PlayerPrefs.SetInt(name, 1);
 	}
 
 	// determine if a levelname is currently unlocked (i.e., it has a key set)
