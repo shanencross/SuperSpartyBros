@@ -78,7 +78,7 @@ public static class PlayerPrefManager {
 	// output the defined Player Prefs to the console
 	public static void ShowPlayerPrefs() {
 		// store the PlayerPref keys to output to the console
-		string[] values = {"Score","Highscore","Lives"};
+		string[] values = {"Score","Highscore","Lives", "Level 1", "Jump Trial"};
 
 		// loop over the values and output to the console
 		foreach(string value in values) {
