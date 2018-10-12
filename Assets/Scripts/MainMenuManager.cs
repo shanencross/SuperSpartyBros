@@ -107,8 +107,8 @@ public class MainMenuManager : MonoBehaviour {
 			case RuntimePlatform.WindowsEditor:
 			case RuntimePlatform.OSXEditor:
 			case RuntimePlatform.IPhonePlayer:
-			case RuntimePlatform.OSXWebPlayer:
-			case RuntimePlatform.WindowsWebPlayer:
+//			case RuntimePlatform.OSXWebPlayer:
+//			case RuntimePlatform.WindowsWebPlayer:
 			case RuntimePlatform.WebGLPlayer: 
 				QuitButton.SetActive(false);
 				break;
